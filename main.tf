@@ -39,6 +39,21 @@ variable "GatewayID" {
   default     = "00800000a00016b6"
 }
 
+variable "EventType" {
+  description = "Chirpstack Event Type"
+  default     = "modem_UplinkResponse"
+}
+
+variable "StateType" {
+  description = "Chirpstack State Type"
+  default     = "ONLINE"
+}
+
+variable "postgres_password" {
+  description = "PostgreSQL Root Password"
+  default     = "root"
+}
+
 # Create Docker volumes
 resource "docker_volume" "postgres_volume" {
   name = "postgresql_data"
@@ -95,9 +110,9 @@ resource "docker_container" "chirpstack_gateway_bridge" {
   }
 
   env = [
-    "INTEGRATION__MQTT__EVENT_TOPIC_TEMPLATE=eu868/gateway/{{ var.GatewayID }}/event/{{ .EventType }}",
-    "INTEGRATION__MQTT__STATE_TOPIC_TEMPLATE=eu868/gateway/{{ var.GatewayID }}/state/{{ .StateType }}",
-    "INTEGRATION__MQTT__COMMAND_TOPIC_TEMPLATE=eu868/gateway/{{ var.GatewayID }}/command/#",
+    "INTEGRATION__MQTT__EVENT_TOPIC_TEMPLATE=eu868/gateway/${var.GatewayID}/event/${var.EventType}",
+    "INTEGRATION__MQTT__STATE_TOPIC_TEMPLATE=eu868/gateway/${var.GatewayID}/state/${var.StateType}",
+    "INTEGRATION__MQTT__COMMAND_TOPIC_TEMPLATE=eu868/gateway/${var.GatewayID}/command/#",
   ]
 
   ports {
@@ -179,7 +194,7 @@ resource "docker_container" "postgres" {
     container_path = "/var/lib/postgresql/data"
   }
 
-  env = ["POSTGRES_PASSWORD=root"]
+  env = ["POSTGRES_PASSWORD=${var.postgres_password}"]
 }
 
 # Redis
