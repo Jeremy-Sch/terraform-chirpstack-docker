@@ -49,8 +49,6 @@ Before you begin, ensure you have the following installed:
 Once the deployment is complete, you can access ChirpStack services at the following URLs:
 
 - ChirpStack Application Server: [http://localhost:8080](http://localhost:8080)
-- ChirpStack Gateway Bridge: [http://localhost:1700](http://localhost:1700)
-- ChirpStack REST API: [http://localhost:8090](http://localhost:8090)
 
 ## Configuration
 
