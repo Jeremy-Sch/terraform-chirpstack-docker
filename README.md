@@ -26,10 +26,22 @@ Before you begin, ensure you have the following installed:
     terraform init
     ```
 
-3. Apply the Terraform configuration:
+3. Modify variables :
 
     ```bash
-    terraform apply
+    nano chirpstack.tfvars
+    ```
+
+4. Check the configuration :
+
+    ```bash
+    terraform validate
+    ```
+
+5. Apply the Terraform configuration:
+
+    ```bash
+    terraform apply -var-file="chirpstack.tfvars"
     ```
 
 ## Usage
@@ -58,7 +70,7 @@ The project uses the following Docker containers:
    - ChirpStack Gateway Bridge with BasicStation support
 
 4. **chirpstack_rest_api**
-   - ChirpStack REST API
+  - ChirpStack REST API
 
 5. **mosquitto**
    - Eclipse Mosquitto MQTT Broker
