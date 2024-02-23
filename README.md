@@ -16,7 +16,7 @@ Before you begin, ensure you have the following installed:
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/your-username/chirpstack-docker-terraform.git
+    git clone https://github.com/Jeremy-Sch/terraform-chirpstack-docker.git
     cd chirpstack-docker-terraform
     ```
 
