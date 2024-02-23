@@ -70,9 +70,9 @@ The project uses the following Docker containers:
    - ChirpStack Gateway Bridge with BasicStation support
 
 4. **chirpstack_rest_api**
-  - ChirpStack REST API
+   - ChirpStack REST API
 
-5. **mosquitto**
+6. **mosquitto**
    - Eclipse Mosquitto MQTT Broker
 
 ## Contributing
