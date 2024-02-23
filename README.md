@@ -26,13 +26,13 @@ Before you begin, ensure you have the following installed:
     terraform init
     ```
 
-3. Modify variables :
+3. Modify variables:
 
     ```bash
     nano chirpstack.tfvars
     ```
 
-4. Check the configuration :
+4. Check the configuration:
 
     ```bash
     terraform validate
