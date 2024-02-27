@@ -52,7 +52,7 @@ Once the deployment is complete, you can access ChirpStack services at the follo
 
 ## Configuration
 
-Adjust the configuration in the Terraform files (`main.tf`) to customize settings such as ChirpStack version, network configurations, etc.
+Adjust the configuration in the Terraform variable definitions file (`chirpstack.tfvars`) to customize settings such as ChirpStack version, etc.
 
 ## Docker Containers
 
