@@ -72,10 +72,8 @@ The project uses the following Docker containers:
 
 6. **mosquitto**
    - Eclipse Mosquitto MQTT Broker
-
-## Contributing
-
-Feel free to contribute by submitting issues or pull requests. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+7. **redis**
+   -  Redis database
 
 ## License
 
