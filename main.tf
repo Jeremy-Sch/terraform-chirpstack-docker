@@ -10,10 +10,42 @@ terraform {
 
 # Configure the docker provider
 provider "docker" {
-  host = "unix:///var/run/docker.sock"
+  host = var.is_remote ? "ssh://${var.ssh_user}@${var.remote_docker}" : "unix:///var/run/docker.sock"
+  ssh_opts = var.is_remote ? [
+    "-o", "StrictHostKeyChecking=no",
+    "-o", "UserKnownHostsFile=/dev/null",
+    "-i", var.ssh_private_key_path
+  ] : []
 }
 
 # Define variables
+variable "is_remote" {
+  description = "Flag to indicate whether to use a remote Docker host over SSH."
+  type        = bool
+  default     = false
+}
+
+variable "remote_docker" {
+  description = "IP address or hostname of the remote Docker host."
+  type        = string
+  nullable    = true
+  default     = "127.0.0.1"
+}
+
+variable "ssh_user" {
+  description = "SSH user for connecting to the remote Docker host."
+  type        = string
+  nullable    = true
+  default     = "devops"
+}
+
+variable "ssh_private_key_path" {
+  description = "SSH private key file path"
+  type        = string
+  nullable    = true
+  default     = "/home/user/.ssh/privkey"
+}
+
 variable "chirpstack_image_version" {
   description = "ChirpStack Docker image version"
   default     = "4"
@@ -54,6 +86,22 @@ variable "postgres_password" {
   default     = "root"
 }
 
+# Copy the configuration files
+resource "null_resource" "copy_chirpstack_config" {
+  count = var.is_remote ? 1 : 0  # Create only if is_remote is true
+  provisioner "remote-exec" {
+    inline = [
+      "scp -C -r ./configuration/* ${var.ssh_user}@${var.remote_docker}:/opt/chirpstack/config",
+    ]
+    connection {
+      type        = "ssh"
+      user        = var.ssh_user
+      private_key = file(var.ssh_private_key_path)
+      host        = var.remote_docker
+    }
+  }
+}
+
 # Create Docker volumes
 resource "docker_volume" "postgres_volume" {
   name = "postgresql_data"
@@ -86,7 +134,7 @@ resource "docker_container" "chirpstack" {
   }
 
   volumes {
-    host_path	   = "/opt/terraform/docker-chirpstack/configuration/chirpstack"
+    host_path	   = "/opt/chirpstack/config/chirpstack"
     container_path = "/etc/chirpstack"
   }
 
@@ -122,7 +170,7 @@ resource "docker_container" "chirpstack_gateway_bridge" {
   }
 
   volumes {
-    host_path = "/opt/terraform/docker-chirpstack/configuration/chirpstack-gateway-bridge"
+    host_path = "/opt/chirpstack/config/chirpstack-gateway-bridge"
     container_path = "/etc/chirpstack-gateway-bridge"
   }
 
@@ -147,7 +195,7 @@ resource "docker_container" "chirpstack_gateway_bridge_basicstation" {
   }
 
   volumes {
-    host_path = "/opt/terraform/docker-chirpstack/configuration/chirpstack-gateway-bridge"
+    host_path = "/opt/chirpstack/config/chirpstack-gateway-bridge"
     container_path = "/etc/chirpstack-gateway-bridge"
   }
 
@@ -185,7 +233,7 @@ resource "docker_container" "postgres" {
   }
 
   volumes {
-    host_path      = "/opt/terraform/docker-chirpstack/configuration/postgresql/initdb"
+    host_path      = "/opt/chirpstack/config/postgresql/initdb"
     container_path = "/docker-entrypoint-initdb.d"
   }
 
@@ -231,7 +279,7 @@ resource "docker_container" "mosquitto" {
   }
 
   volumes {
-    host_path = "/opt/terraform/docker-chirpstack/configuration/mosquitto/config"
+    host_path = "/opt/chirpstack/config/mosquitto/config"
     container_path = "/mosquitto/config"
   }
 }
