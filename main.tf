@@ -92,7 +92,7 @@ resource "null_resource" "copy_chirpstack_config" {
   provisioner "remote-exec" {
     inline = [
       "sudo mkdir -p /opt/chirpstack/config",
-      "sudo chown -R ${ssh_user}:var.${ssh_user} /opt/chirpstack/config",  
+      "sudo chown -R ${var.ssh_user}:${var.ssh_user} /opt/chirpstack/config",  
     ]
     connection {
       type        = "ssh"
