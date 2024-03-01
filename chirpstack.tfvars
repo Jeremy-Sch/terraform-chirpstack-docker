@@ -1,9 +1,9 @@
 # chirpstack.tfvars
 
 is_remote = true
-remote_docker = "127.0.0.1"
+remote_docker = "192.168.1.10"
 ssh_user = "devops"
-ssh_private_key_path = "~/.ssh/localhost"
+ssh_private_key_path = "~/.ssh/infres.lab_privkey"
 chirpstack_image_version = "4"
 postgres_image_version   = "14-alpine"
 redis_image_version      = "7-alpine"

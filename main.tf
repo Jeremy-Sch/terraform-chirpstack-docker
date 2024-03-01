@@ -91,7 +91,8 @@ resource "null_resource" "copy_chirpstack_config" {
   count = var.is_remote ? 1 : 0  # Create only if is_remote is true
   provisioner "remote-exec" {
     inline = [
-      "scp -C -r ./configuration/* ${var.ssh_user}@${var.remote_docker}:/opt/chirpstack/config",
+      "sudo mkdir -p /opt/chirpstack/config",
+      "sudo chown -R ${ssh_user}:var.${ssh_user} /opt/chirpstack/config",  
     ]
     connection {
       type        = "ssh"
@@ -99,6 +100,9 @@ resource "null_resource" "copy_chirpstack_config" {
       private_key = file(var.ssh_private_key_path)
       host        = var.remote_docker
     }
+  }
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -C -i ${var.ssh_private_key_path} -r ./configuration/* ${var.ssh_user}@${var.remote_docker}:/opt/chirpstack/config"
   }
 }
 
@@ -138,7 +142,7 @@ resource "docker_container" "chirpstack" {
     container_path = "/etc/chirpstack"
   }
 
-  depends_on = [docker_container.postgres, docker_container.mosquitto, docker_container.redis]
+  depends_on = [null_resource.copy_chirpstack_config, docker_container.postgres, docker_container.mosquitto, docker_container.redis]
 
   env = [
     "MQTT_BROKER_HOST=mosquitto",
@@ -174,7 +178,7 @@ resource "docker_container" "chirpstack_gateway_bridge" {
     container_path = "/etc/chirpstack-gateway-bridge"
   }
 
-  depends_on = [docker_container.mosquitto]
+  depends_on = [null_resource.copy_chirpstack_config, docker_container.mosquitto]
 }
 
 # ChirpStack Gateway Bridge BasicStattion
@@ -199,7 +203,7 @@ resource "docker_container" "chirpstack_gateway_bridge_basicstation" {
     container_path = "/etc/chirpstack-gateway-bridge"
   }
 
-  depends_on = [docker_container.mosquitto]
+  depends_on = [null_resource.copy_chirpstack_config, docker_container.mosquitto]
 }
 
 # ChirpStack REST API
@@ -219,7 +223,7 @@ resource "docker_container" "chirpstack_rest_api" {
     internal = 8090
   }
   
-  depends_on = [docker_container.chirpstack]
+  depends_on = [null_resource.copy_chirpstack_config, docker_container.chirpstack]
 }
 
 # PostgreSQL
@@ -243,6 +247,7 @@ resource "docker_container" "postgres" {
   }
 
   env = ["POSTGRES_PASSWORD=${var.postgres_password}"]
+  depends_on = [null_resource.copy_chirpstack_config]
 }
 
 # Redis
@@ -282,4 +287,5 @@ resource "docker_container" "mosquitto" {
     host_path = "/opt/chirpstack/config/mosquitto/config"
     container_path = "/mosquitto/config"
   }
+  depends_on = [null_resource.copy_chirpstack_config]
 }
