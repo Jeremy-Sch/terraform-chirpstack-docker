@@ -1,8 +1,8 @@
 # Output values from Terraform
-output "container_names" {
-  value = [for c in docker_container.container : c.name]
+output "chirpstack_container_name" {
+  value = [for c in docker_container.chirpstack : c.name]
 }
 
-output "container_external_ports" {
-  value = [for c in docker_container.containerl : c.ports.0.external]
+output "chirpstack_external_port" {
+  value = [for c in docker_container.chirpstack : c.ports.0.external]
 }
